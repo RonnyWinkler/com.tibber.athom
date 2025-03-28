@@ -9,6 +9,7 @@ sourceMapSupport.install();
 
 type HomeyWithMissingTypings = Homey & {
   platformVersion: string;
+  platform: string;
 };
 
 class TibberApp extends App {
@@ -16,17 +17,20 @@ class TibberApp extends App {
     this.log('Tibber app is running...');
 
     // Init Debugger
-    // Uncomment  to enable debugger. Adjust the port if needed. Adjust the Homey settings in .vscode/lauch.json
-    // if (process.env.DEBUG === '1') {
-    //   // @ts-expect-error - platform is not in the types
-    //   if (this.homey.platform === 'local') {
-    //     try {
-    //       require('inspector').waitForDebugger();
-    //     } catch (error) {
-    //       require('inspector').open(9291, '0.0.0.0', true);
-    //     }
-    //   }
-    // }
+    // Adjust the port if needed. If you are using VS Code, launch settings are in `.vscode/launch.json`
+    if ((this.homey as HomeyWithMissingTypings).platform === 'local') {
+      if (process.env.WAIT_FOR_DEBUGGER === '1') {
+        // eslint-disable-next-line global-require,@typescript-eslint/no-var-requires
+        require('inspector').waitForDebugger();
+      } else if (process.env.DEBUG === '1') {
+        try {
+          // eslint-disable-next-line global-require,@typescript-eslint/no-var-requires
+          require('inspector').open(9291, '0.0.0.0', true);
+        } catch (error) {
+          //
+        }
+      }
+    }
 
     const { version: firmwareVersion, platformVersion } = this
       .homey as HomeyWithMissingTypings;
